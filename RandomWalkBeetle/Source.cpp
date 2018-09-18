@@ -126,10 +126,10 @@ int main()
     beginCLK = clock();
     for (int i = inputStart; i <= inputEnd; i++)
     {
-        thread * threadList = new thread[inputRepeat];
+        // thread * threadList = new thread[inputRepeat];
         for (int j = 0; j < inputRepeat; j++)
         {
-            /*Tileroom * tileroom = new Tileroom(i);
+            Tileroom * tileroom = new Tileroom(i);
             Beetle * beetle = new Beetle(tileroom);
 
             while (beetle->getTileroom()->visitAll() == false) { beetle->moveOnce(); }
@@ -137,15 +137,15 @@ int main()
             cout << beetle->getMovedTime() << ",";
 
             delete tileroom;
-            delete beetle;*/
+            delete beetle;
             //emulateOnce(i);
-            threadList[j] = thread(emulateOnce, i);
+            // threadList[j] = thread(emulateOnce, i);
         }
 
-        for (int j = 0; j < inputRepeat; j++)
+        /*for (int j = 0; j < inputRepeat; j++)
         {
             threadList[j].join();
-        }
+        }*/
         cout << endl;
     }
     endCLK = clock();
