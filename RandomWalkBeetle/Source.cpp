@@ -1,6 +1,8 @@
 #include <iostream>
 #include <time.h>
 #include <thread>
+#include <fstream>
+#include <cmath>
 using namespace std;
 
 class Tileroom {
@@ -98,7 +100,7 @@ private:
     int movedTime = 0;
 };
 
-void emulateOnce(int i) 
+void emulateOnce(int i)
 {
     Tileroom * tileroom = new Tileroom(i);
     Beetle * beetle = new Beetle(tileroom);
@@ -123,10 +125,18 @@ int main()
     cout << "정사각형 한 변의 길이의 시작 숫자, 종료 숫자, 반복 횟수를 입력해주세요. : ";
     cin >> inputStart >> inputEnd >> inputRepeat;
 
+    ofstream totalResult("totalResult.csv", ios::out);
+    ofstream calcResult("calcResult.csv", ios::out);
+
     beginCLK = clock();
     for (int i = inputStart; i <= inputEnd; i++)
     {
-        // thread * threadList = new thread[inputRepeat];
+        cout << i << " X " << i << " 생성 중... ";
+        int * countList = new int(inputStart);
+
+        double avg = 0;
+        double var = 0;
+
         for (int j = 0; j < inputRepeat; j++)
         {
             Tileroom * tileroom = new Tileroom(i);
@@ -134,19 +144,20 @@ int main()
 
             while (beetle->getTileroom()->visitAll() == false) { beetle->moveOnce(); }
 
-            cout << beetle->getMovedTime() << ",";
+            totalResult << beetle->getMovedTime() << ",";
+            //countList[j] = beetle->getMovedTime();
 
             delete tileroom;
             delete beetle;
-            //emulateOnce(i);
-            // threadList[j] = thread(emulateOnce, i);
         }
 
         /*for (int j = 0; j < inputRepeat; j++)
         {
-            threadList[j].join();
+            avg += countList[j];
         }*/
-        cout << endl;
+
+        totalResult << endl;
+        cout << "생성 완료!" << endl;
     }
     endCLK = clock();
     cout << (endCLK - beginCLK) / (double)CLOCKS_PER_SEC << endl;
