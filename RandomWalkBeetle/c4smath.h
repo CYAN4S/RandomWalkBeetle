@@ -25,10 +25,19 @@ double getVariance(T* arr, int size)
 
     double sum = 0;
     double avg = getAverage(arr, size);
-    double result;
 
     for (int i = 0; i < size; i++)
         sum += pow(arr[i] - avg, 2);
 
     return sum / size;
+}
+
+bool allValueIsTrue(bool * arr, int size)
+{
+    for (int i = 0; i < size; i++)
+    {
+        if (arr[i] == false)
+            return false;
+    }
+    return true;
 }

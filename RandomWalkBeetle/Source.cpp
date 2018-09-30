@@ -22,10 +22,10 @@ public:
         delete _hasVisited;
     }
 
-    int getRoomSize() { return _roomSize; }
-    bool ** getHasVisited() { return _hasVisited; }
-
-    void markTile(int row, int col) { _hasVisited[row][col] = 1; }
+    void markTile(int row, int col) 
+    { 
+        _hasVisited[row][col] = 1; 
+    }
 
     bool visitAll()
     {
@@ -33,11 +33,17 @@ public:
         {
             for (int j = 0; j < _roomSize; j++)
             {
-                if (_hasVisited[i][j] != 1) { return false; }
+                if (_hasVisited[i][j] != 1) 
+                { 
+                    return false; 
+                }
             }
         }
         return true;
     }
+
+    int getRoomSize() { return _roomSize; }
+    bool ** getHasVisited() { return _hasVisited; }
 
 private:
     int _roomSize;
@@ -50,12 +56,14 @@ public:
     Beetle(Tileroom * tileroom) : _tileroom(tileroom)
     {
         _roomSize = tileroom->getRoomSize();
+
         _rowPosition = rand() % _roomSize;
         _colPosition = rand() % _roomSize;
+
         _tileroom->markTile(_rowPosition, _colPosition);
     }
 
-    void move()
+    inline void move()
     {
         while (true)
         {
@@ -83,11 +91,19 @@ public:
         }
     }
 
-    void moveOnce()
+    inline void moveOnce()
     {
         move();
         _tileroom->markTile(_rowPosition, _colPosition);
         movedTime++;
+    }
+
+    void visitAllTiles()
+    {
+        while (_tileroom->visitAll() == false)
+        {
+            moveOnce();
+        }
     }
 
     Tileroom * getTileroom() { return _tileroom; }
@@ -100,18 +116,44 @@ private:
     int _roomSize;
     int movedTime = 0;
 };
+//
+//class BeetleThread : public thread
+//{
+//public:
+//    BeetleThread(Tileroom * tileroom, Beetle * beetle, int * countList, int j) : 
+//        thread(&Beetle::visitAllTiles, beetle), _tileroom(tileroom), _beetle(beetle), _countList(countList), _j(j)
+//    {
+//
+//    }
+//
+//    ~BeetleThread()
+//    {
+//        _countList[_j] = _beetle->getMovedTime();
+//        delete _tileroom;
+//        delete _beetle;
+//    }
+//
+//private:
+//    Tileroom * _tileroom;
+//    Beetle * _beetle;
+//    int * _countList;
+//    int _j;
+//};
 
 void emulateOnce(int i, int j, int * countList)
 {
     Tileroom * tileroom = new Tileroom(i);
     Beetle * beetle = new Beetle(tileroom);
 
-    while (beetle->getTileroom()->visitAll() == false) { beetle->moveOnce(); }
-
+    beetle->visitAllTiles();
+    /*thread t{ &Beetle::visitAllTiles, beetle };
+    t.join();*/
     countList[j] = beetle->getMovedTime();
 
     delete tileroom;
     delete beetle;
+
+    return;
 }
 
 int main()
@@ -119,10 +161,7 @@ int main()
     srand((unsigned int)time(NULL));
     clock_t beginCLK, endCLK;
 
-    int inputStart = 0;
-    int inputEnd = 0;
-    int inputRepeat = 0;
-
+    int inputStart = 0, inputEnd = 0, inputRepeat = 0;
     cout << "정사각형 한 변의 길이의 시작 숫자, 종료 숫자, 반복 횟수를 입력해주세요. : ";
     cin >> inputStart >> inputEnd >> inputRepeat;
 
@@ -139,16 +178,6 @@ int main()
 
         for (int j = 0; j < inputRepeat; j++)
         {
-            /*Tileroom * tileroom = new Tileroom(i);
-            Beetle * beetle = new Beetle(tileroom);
-
-            while (beetle->getTileroom()->visitAll() == false) { beetle->moveOnce(); }
-
-            totalResult << beetle->getMovedTime() << ",";
-            countList[j] = beetle->getMovedTime();
-
-            delete tileroom;
-            delete beetle;*/
             emulateOnce(i, j, countList);
         }
 
