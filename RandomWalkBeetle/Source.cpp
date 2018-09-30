@@ -1,6 +1,5 @@
 #include <iostream>
 #include <time.h>
-#include <thread>
 #include <fstream>
 #include <cmath>
 #include "c4smath.h"
@@ -25,6 +24,12 @@ public:
     void markTile(int row, int col) 
     { 
         _hasVisited[row][col] = 1; 
+    }
+
+    void removeAllMarks()
+    {
+        for (int i = 0; i < _roomSize; i++)
+            memset(_hasVisited[i], 0, sizeof(bool) * _roomSize);
     }
 
     bool visitAll()
@@ -61,6 +66,16 @@ public:
         _colPosition = rand() % _roomSize;
 
         _tileroom->markTile(_rowPosition, _colPosition);
+    }
+
+    void relocate()
+    {
+        _rowPosition = rand() % _roomSize;
+        _colPosition = rand() % _roomSize;
+
+        _tileroom->markTile(_rowPosition, _colPosition);
+
+        movedTime = 0;
     }
 
     inline void move()
@@ -116,45 +131,6 @@ private:
     int _roomSize;
     int movedTime = 0;
 };
-//
-//class BeetleThread : public thread
-//{
-//public:
-//    BeetleThread(Tileroom * tileroom, Beetle * beetle, int * countList, int j) : 
-//        thread(&Beetle::visitAllTiles, beetle), _tileroom(tileroom), _beetle(beetle), _countList(countList), _j(j)
-//    {
-//
-//    }
-//
-//    ~BeetleThread()
-//    {
-//        _countList[_j] = _beetle->getMovedTime();
-//        delete _tileroom;
-//        delete _beetle;
-//    }
-//
-//private:
-//    Tileroom * _tileroom;
-//    Beetle * _beetle;
-//    int * _countList;
-//    int _j;
-//};
-
-void emulateOnce(int i, int j, int * countList)
-{
-    Tileroom * tileroom = new Tileroom(i);
-    Beetle * beetle = new Beetle(tileroom);
-
-    beetle->visitAllTiles();
-    /*thread t{ &Beetle::visitAllTiles, beetle };
-    t.join();*/
-    countList[j] = beetle->getMovedTime();
-
-    delete tileroom;
-    delete beetle;
-
-    return;
-}
 
 int main()
 {
@@ -176,10 +152,19 @@ int main()
     {
         cout << i << " X " << i << " »ý¼º Áß... ";
 
+        Tileroom * tileroom = new Tileroom(i);
+        Beetle * beetle = new Beetle(tileroom);
+
         for (int j = 0; j < inputRepeat; j++)
         {
-            emulateOnce(i, j, countList);
+            tileroom->removeAllMarks();
+            beetle->relocate();
+            beetle->visitAllTiles();
+            countList[j] = beetle->getMovedTime();
         }
+
+        delete tileroom;
+        delete beetle;
 
         for (int j = 0; j < inputRepeat; j++)
         {
