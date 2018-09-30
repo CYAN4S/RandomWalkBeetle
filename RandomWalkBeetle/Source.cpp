@@ -3,6 +3,7 @@
 #include <thread>
 #include <fstream>
 #include <cmath>
+#include "c4smath.h"
 using namespace std;
 
 class Tileroom {
@@ -100,14 +101,14 @@ private:
     int movedTime = 0;
 };
 
-void emulateOnce(int i)
+void emulateOnce(int i, int j, int * countList)
 {
     Tileroom * tileroom = new Tileroom(i);
     Beetle * beetle = new Beetle(tileroom);
 
     while (beetle->getTileroom()->visitAll() == false) { beetle->moveOnce(); }
 
-    cout << beetle->getMovedTime() << ",";
+    countList[j] = beetle->getMovedTime();
 
     delete tileroom;
     delete beetle;
@@ -128,37 +129,43 @@ int main()
     ofstream totalResult("totalResult.csv", ios::out);
     ofstream calcResult("calcResult.csv", ios::out);
 
+    int * countList = new int[inputRepeat];
+
     beginCLK = clock();
+
     for (int i = inputStart; i <= inputEnd; i++)
     {
         cout << i << " X " << i << " 생성 중... ";
-        int * countList = new int(inputStart);
-
-        double avg = 0;
-        double var = 0;
 
         for (int j = 0; j < inputRepeat; j++)
         {
-            Tileroom * tileroom = new Tileroom(i);
+            /*Tileroom * tileroom = new Tileroom(i);
             Beetle * beetle = new Beetle(tileroom);
 
             while (beetle->getTileroom()->visitAll() == false) { beetle->moveOnce(); }
 
             totalResult << beetle->getMovedTime() << ",";
-            //countList[j] = beetle->getMovedTime();
+            countList[j] = beetle->getMovedTime();
 
             delete tileroom;
-            delete beetle;
+            delete beetle;*/
+            emulateOnce(i, j, countList);
         }
 
-        /*for (int j = 0; j < inputRepeat; j++)
+        for (int j = 0; j < inputRepeat; j++)
         {
-            avg += countList[j];
-        }*/
+            totalResult << countList[j] << ",";
+        }
+
+        double average = getAverage(countList, inputRepeat);
+        double stdDeviation = sqrt(getVariance(countList, inputRepeat));
 
         totalResult << endl;
-        cout << "생성 완료!" << endl;
+        calcResult << i << "," << average << "," << stdDeviation << endl;
+        cout << "생성 완료! 평균 : " << average << ", 표준편차 : " << stdDeviation <<  endl;
     }
+    delete countList;
+
     endCLK = clock();
     cout << (endCLK - beginCLK) / (double)CLOCKS_PER_SEC << endl;
 
